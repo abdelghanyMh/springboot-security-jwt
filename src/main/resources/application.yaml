@@ -1,6 +1,10 @@
 spring:
   application:
     name: jwt
+  jwt:
+    secret: 1fa82d5d9bd65b86c8052850ce001398
+    accessTokenExpiration: 900 # 15m
+    refreshTokenExpiration: 604800 # 7d
   
   datasource:
     url: jdbc:mysql://localhost:3306/jwt_db
