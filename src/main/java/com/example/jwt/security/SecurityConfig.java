@@ -2,6 +2,7 @@
 package com.example.jwt.security;
 
 // 🤖 Lombok - auto-generates constructor with all fields
+import com.example.jwt.common.SecurityRules;
 import lombok.AllArgsConstructor;
 // 🌱 Spring annotation - registers bean in Spring container
 import org.springframework.context.annotation.Bean;
