@@ -1,0 +1,329 @@
+# JWT Authentication API - Postman Collection
+
+## Import Instructions:
+1. Copy the JSON below
+2. Open Postman
+3. Click "Import" → "Raw text"
+4. Paste the JSON and import
+
+## Collection JSON:
+
+{
+  "info": {
+    "_postman_id": "jwt-api-collection",
+    "name": "JWT Authentication API",
+    "description": "Complete Postman collection for JWT Spring Boot API with authentication and user management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "📝 Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
+          },
+          "description": "Register a new user account. Email must be unique and password must be 6-25 characters."
+        },
+        {
+          "name": "🔑 Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "description": "Authenticate user and receive JWT tokens. Access token returned in body, refresh token stored in HTTP-only cookie.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Store access token for future requests",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', pm.cookies.get('refreshToken'));",
+                  "    console.log('Access token stored:', response.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "🔄 Refresh Access Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "none"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "description": "Generate new access token using refresh token cookie. No body needed - refresh token is extracted from HTTP-only cookie.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Update access token with new one",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                  "    console.log('Access token refreshed:', response.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "👤 Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "description": "Get information about the currently authenticated user. Requires valid access token."
+        }
+      ],
+      "description": "Authentication endpoints for login, registration, and token management"
+    },
+    {
+      "name": "👥 User Management",
+      "item": [
+        {
+          "name": "📋 Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?sort={{sortField}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "{{sortField}}",
+                  "description": "Optional field to sort users by (default: empty)"
+                }
+              ]
+            }
+          },
+          "description": "Retrieve all users with optional sorting. Requires authentication."
+        },
+        {
+          "name": "👤 Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "description": "Retrieve a specific user by their ID. Requires authentication."
+        },
+        {
+          "name": "✏️ Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Updated\",\n    \"email\": \"john.updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "description": "Update user information. Both name and email are optional. Requires authentication."
+        },
+        {
+          "name": "🔐 Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"oldPassword\": \"password123\",\n    \"newPassword\": \"newpassword456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "change-password"]
+            }
+          },
+          "description": "Change user password. Requires both old and new passwords. Requires authentication."
+        },
+        {
+          "name": "🗑️ Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "description": "Delete a user by their ID. Requires authentication and appropriate permissions."
+        }
+      ],
+      "description": "User CRUD operations for managing user accounts"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-refresh token if it's expired",
+          "const accessToken = pm.collectionVariables.get('accessToken');",
+          "const refreshToken = pm.collectionVariables.get('refreshToken');",
+          "",
+          "if (accessToken && refreshToken) {",
+          "    try {",
+          "        // Decode JWT to check expiration",
+          "        const tokenParts = accessToken.split('.');",
+          "        const payload = JSON.parse(atob(tokenParts[1]));",
+          "        const now = Math.floor(Date.now() / 1000);",
+          "        ",
+          "        // If token expires in next 30 seconds, refresh it",
+          "        if (payload.exp - now < 30) {",
+          "            console.log('Token expiring soon, auto-refreshing...');",
+          "            ",
+          "            const refreshRequest = {",
+          "                url: pm.collectionVariables.get('baseUrl') + '/auth/refresh',",
+          "                method: 'POST',",
+          "                header: [],",
+          "                body: {",
+          "                    mode: 'none'",
+          "                }",
+          "            };",
+          "            ",
+          "            pm.sendRequest(refreshRequest, (err, res) => {",
+          "                if (!err && res.code === 200) {",
+          "                    const response = res.json();",
+          "                    pm.collectionVariables.set('accessToken', response.accessToken);",
+          "                    console.log('Token auto-refreshed successfully');",
+          "                }",
+          "            });",
+          "        }",
+          "    } catch (e) {",
+          "        console.log('Error checking token expiration:', e);",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "sortField",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
