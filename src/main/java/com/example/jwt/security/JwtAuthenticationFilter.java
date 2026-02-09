@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 // 🌐 Spring Security - adds web-specific details to authentication
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 // 🔍 Spring Security - base class for filters that run once per request
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 // 💾 IOException - exception for I/O operations
@@ -26,7 +27,9 @@ import java.util.List;
 @AllArgsConstructor
 // 🔍 JWT Authentication Filter - extracts and validates JWT tokens from HTTP requests
 // Extends OncePerRequestFilter - ensures filter runs exactly once per request
-public class JwtAuthentificationFilter extends OncePerRequestFilter {
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
   // 🔧 JWT service - handles token parsing and validation
   private final JwtService jwtService;
 

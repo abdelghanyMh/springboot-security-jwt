@@ -20,7 +20,7 @@ public class JwtService {
   private final JwtConfig jwtConfig;
 
   // 🎫 Generate short-lived access token (15 minutes) for API requests
-  public Jwt genereateAccessToken(User user) {
+  public Jwt generateAccessToken(User user) {
     // 🔧 Reuse token generation logic with access token expiration time
     return genereateToken(user, jwtConfig.getAccessTokenExpiration());
   }
